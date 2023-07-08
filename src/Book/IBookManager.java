@@ -2,6 +2,9 @@ package Book;
 
 import java.util.ArrayList;
 
+import Transaction.Transaction;
+import User.User;
+
 public interface IBookManager {
 
     boolean addBook(Book book);
@@ -16,5 +19,6 @@ public interface IBookManager {
     Book findByTitle(String title);
     Book findByAuthor(String author);
     Book findByISBN(String ISBN);
+    Transaction borrowBook(User user , Book book);
 
 }

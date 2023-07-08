@@ -5,6 +5,7 @@ import Book.IBookManager;
 import Book.Book;
 import Book.Genre;
 import Transaction.ITransactionManager;
+import Transaction.Transaction;
 import Transaction.TransactionManager;
 import User.IUserManager;
 import User.User;
@@ -247,17 +248,26 @@ public class Menu {
 
     }
 
+
     private static void bookOption(Book book) {
 
         clearConsole();
 
-        System.out.println(book.getTitle()+" By " +book.getAuthor());
+        System.out.print(book.getTitle()+" By " +book.getAuthor()+"     "+ "Unit : ");
+
+        if (book.getUnit() > 0){
+            System.out.print("\u001B[32m"+book.getUnit());
+        }else {
+            System.out.print("\u001B[31m"+book.getUnit());
+        }
+        System.out.println("\u001B[0m");
 
         Scanner scanner = new Scanner(System.in);
 
 
         System.out.println("+------------------------------------------+");
         System.out.println("| for borrow book please press key b       |");
+        System.out.println("| for return book please press key r       |");
         System.out.println("| for update book please press key u       |");
         System.out.println("| for back to main page please press key m |");
         System.out.println("+------------------------------------------+\n");
@@ -267,7 +277,44 @@ public class Menu {
             String command = scanner.next();
             if (command.equals("b")){
 
-             //develop borrowing system
+                if (book.getUnit() > 0){
+
+                    Transaction transaction = bookManager.borrowBook(currentUser,book);
+                    if (transaction != null){
+
+                        transactionManager.addTransaction(transaction);
+                        System.out.println("Book successfully borrowed .");
+
+                    }else {
+                        System.out.println("Borrowing book failed , please try again .");
+                    }
+
+
+                }else {
+
+                    System.out.println("There is no unit left to borrow , please try again later.");
+
+                }
+                afterLogin();
+            }
+            else if(command.equals("r")){
+
+
+                Transaction transaction = transactionManager.findTransactionByISBN(book.getISBN(),currentUser.getUserName());
+                boolean isTransactionInvalid = transactionManager.toInvalidTransaction(transaction);
+                if (isTransactionInvalid){
+                    int bookUnit = book.getUnit()+1;
+                    book.setUnit(bookUnit);
+                    bookManager.updateBook(book,book.getISBN());
+                    System.out.println("Book successfully returned .");
+
+                }else {
+                    System.out.println("Return book failed , please try again .");
+                }
+
+
+
+                afterLogin();
 
             }
             else if(command.equals("u")){

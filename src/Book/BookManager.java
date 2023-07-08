@@ -1,7 +1,12 @@
 package Book;
 
+import Transaction.Transaction;
+import User.User;
+
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class BookManager implements IBookManager{
 
@@ -104,7 +109,7 @@ public class BookManager implements IBookManager{
 
                 String[] bookInText = books[i].split("//");
 
-                if (bookInText[1].contains(title)){
+                if (bookInText[1].toLowerCase().contains(title.toLowerCase())){
 
                     result.add(StringToBook(books[i]));
                 }
@@ -129,7 +134,7 @@ public class BookManager implements IBookManager{
 
                 String[] bookInText = books[i].split("//");
 
-                if (bookInText[2].contains(author)){
+                if (bookInText[2].toLowerCase().contains(author.toLowerCase())){
 
                     result.add(StringToBook(books[i]));
                 }
@@ -309,6 +314,28 @@ public class BookManager implements IBookManager{
 
         return null;
 
+    }
+
+    @Override
+    public Transaction borrowBook(User user, Book book) {
+
+        if (user == null || book == null){
+            return null;
+        }
+        long thirtyDaysInMillis = 30L * 24L * 60L * 60L * 1000L;
+        long borrowDate = System.currentTimeMillis();
+        long dueDate = new Date(borrowDate+thirtyDaysInMillis).getTime();
+        Transaction transaction = new Transaction();
+        transaction.setBooksISBN(book.getISBN());
+        transaction.setUserName(user.getUserName());
+        transaction.setBorrowDate(borrowDate);
+        transaction.setDueDate(dueDate);
+        transaction.setValidState(true);
+        int bookUnit = book.getUnit() - 1;
+        book.setUnit(bookUnit);
+        updateBook(book,book.getISBN());
+
+        return transaction;
     }
 
 

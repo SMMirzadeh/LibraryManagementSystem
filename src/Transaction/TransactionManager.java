@@ -1,5 +1,7 @@
 package Transaction;
 
+import Book.Book;
+
 import java.io.*;
 import java.util.Date;
 
@@ -28,7 +30,7 @@ public class TransactionManager implements ITransactionManager{
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(path));
 
-                writer.write(transactionsData+transaction.getBooksISBN()+"//"+transaction.getUserName()+"//"+transaction.getBooksISBN()+"//"+transaction.getDueDate());
+                writer.write(transactionsData+transaction.getBooksISBN()+"//"+transaction.getUserName()+"//"+transaction.getBorrowDate()+"//"+transaction.getDueDate()+"//"+transaction.getValidState());
                 writer.close();
                 return  true;
             } catch (IOException e) {
@@ -37,6 +39,76 @@ public class TransactionManager implements ITransactionManager{
 
             }
         }
+
+    @Override
+    public Transaction findTransactionByISBN(String bookISBN , String userName) {
+        Transaction result = new Transaction();
+        String transactionData = getAllTransactions();
+
+        if (!transactionData.equals("")){
+
+            String[] transactions = transactionData.split("\n");
+            for (int i = 0 ; i<transactions.length ; i++){
+
+                String[] transactionInText = transactions[i].split("//");
+
+                if (bookISBN.equals(transactionInText[0])&&userName.equals(transactionInText[1])){
+                    result.setBooksISBN(transactionInText[0]);
+                    result.setUserName(transactionInText[1]);
+                    result.setBorrowDate(Long.parseLong(transactionInText[2]));
+                    result.setDueDate(Long.parseLong(transactionInText[3]));
+                    result.setValidState(Boolean.parseBoolean(transactionInText[4]));
+                    return result;
+                }
+
+            }
+        }
+
+
+        return null;
+    }
+
+    @Override
+    public boolean toInvalidTransaction(Transaction transaction) {
+
+        String TransactionsData = getAllTransactions();
+        String newTransactionsData = "";
+        String[] transactions = TransactionsData.split("\n");
+        boolean isTransactionInvalid = false;
+        for (int i = 0 ; i<transactions.length ; i++){
+
+            String[] transactionInText = transactions[i].split("//");
+            if (!(transaction.getBooksISBN().equals(transactionInText[0]) && transaction.getUserName().equals(transactionInText[1]))){
+
+                if (i==(transactions.length-1)){
+
+                    newTransactionsData +=transactions[i];
+                }else {
+                    newTransactionsData +=transactions[i]+"\n";
+                }
+
+            }else {
+                transactionInText[4] = ""+false;
+                if (i==(transactions.length-1)){
+
+                    newTransactionsData +=String.join("//",transactionInText);
+                }else {
+                    newTransactionsData +=String.join("//",transactionInText)+"\n";
+                }
+                isTransactionInvalid = true;
+            }
+
+
+
+        }
+        if (!TransactionsData.equals(newTransactionsData)){
+
+            setAllTransactions(newTransactionsData);
+        }
+        return isTransactionInvalid;
+
+
+    }
 
     @Override
     public String getAllTransactions() {
@@ -57,4 +129,17 @@ public class TransactionManager implements ITransactionManager{
         return transactionsInfo;
 
     }
+
+    @Override
+    public void setAllTransactions(String transactions) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
+
+            writer.write(transactions);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
