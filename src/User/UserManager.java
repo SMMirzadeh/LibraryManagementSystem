@@ -17,7 +17,11 @@ public class UserManager implements IUserManager{
 
         fileManager = new FileManager(path,useFileSystem);
 
-        fileManager.firstInit();
+        try {
+            fileManager.firstInit();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
     @Override
@@ -196,12 +200,20 @@ public class UserManager implements IUserManager{
     @Override
     public String getAllUsers(){
 
-        return fileManager.getAllData();
+        try {
+            return fileManager.getAllData();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     @Override
     public void setAllUsers(String users){
 
-        fileManager.setAllData(users);
+        try {
+            fileManager.setAllData(users);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

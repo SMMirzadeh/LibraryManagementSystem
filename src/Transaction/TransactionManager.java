@@ -19,7 +19,11 @@ public class TransactionManager implements ITransactionManager{
 
         fileManager = new FileManager(path,useFileSystem);
 
-        fileManager.firstInit();
+        try {
+            fileManager.firstInit();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
     }
@@ -28,8 +32,12 @@ public class TransactionManager implements ITransactionManager{
     public boolean addTransaction(Transaction transaction) {
 
             String transactionsData = getAllTransactions();
+        try {
             fileManager.setAllData(transactionsData+transaction.getBooksISBN()+"//"+transaction.getUserName()+"//"+transaction.getBorrowDate()+"//"+transaction.getDueDate()+"//"+transaction.getValidState());
-            return true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return true;
         }
 
     @Override
@@ -106,8 +114,11 @@ public class TransactionManager implements ITransactionManager{
     public String getAllTransactions() {
 
 
-
-        return fileManager.getAllData();
+        try {
+            return fileManager.getAllData();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -147,7 +158,11 @@ public class TransactionManager implements ITransactionManager{
     @Override
     public void setAllTransactions(String transactions) {
 
-        fileManager.setAllData(transactions);
+        try {
+            fileManager.setAllData(transactions);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 

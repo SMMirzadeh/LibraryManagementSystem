@@ -13,7 +13,7 @@ public class FileManager {
         this.useFileSystem = useFileSystem;
 
     }
-    public void firstInit(){
+    public void firstInit() throws IOException{
 
         if (useFileSystem) {
             //Creating file.txt file into the path direction
@@ -21,13 +21,12 @@ public class FileManager {
                 File file = new File(path);
                 file.createNewFile();
             } catch (IOException e) {
-                System.out.println("An error occurred.");
-                e.printStackTrace();
+                throw e;
             }
         }
 
     }
-    public void setAllData(String data){
+    public void setAllData(String data) throws IOException{
 
         if (useFileSystem){
 
@@ -37,7 +36,7 @@ public class FileManager {
                 writer.write(data);
                 writer.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw e;
             }
 
         }else{
@@ -48,7 +47,7 @@ public class FileManager {
 
 
     }
-    public String getAllData(){
+    public String getAllData() throws IOException{
 
         if (useFileSystem){
 
@@ -62,7 +61,7 @@ public class FileManager {
                 }
                 reader.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw e;
             }
 
             return dataInfo;

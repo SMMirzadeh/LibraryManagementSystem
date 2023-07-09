@@ -18,7 +18,11 @@ public class BookManager implements IBookManager{
 
         fileManager = new FileManager(path,useFileSystem);
 
-        fileManager.firstInit();
+        try {
+            fileManager.firstInit();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
     }
@@ -28,7 +32,11 @@ public class BookManager implements IBookManager{
         if (bookExistence(book.getISBN()) == false){
 
             String booksData = getAllBooks();
-            fileManager.setAllData(booksData+book.getISBN()+"//"+book.getTitle()+"//"+book.getAuthor()+"//"+book.getGenre()+"//"+book.getUnit());
+            try {
+                fileManager.setAllData(booksData+book.getISBN()+"//"+book.getTitle()+"//"+book.getAuthor()+"//"+book.getGenre()+"//"+book.getUnit());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             return true;
         }else {
 
@@ -188,12 +196,20 @@ public class BookManager implements IBookManager{
     @Override
     public String getAllBooks() {
 
-        return fileManager.getAllData();
+        try {
+            return fileManager.getAllData();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void setAllBooks(String books) {
-        fileManager.setAllData(books);
+        try {
+            fileManager.setAllData(books);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
