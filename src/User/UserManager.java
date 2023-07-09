@@ -1,5 +1,7 @@
 package User;
 
+import Tools.FileManager;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -9,19 +11,13 @@ import java.util.Scanner;
 public class UserManager implements IUserManager{
 
     private final String path = "UsersData.txt";
+    FileManager fileManager;
 
-    public UserManager(){
+    public UserManager(boolean useFileSystem){
 
-        //Creating UsersData.txt file into the path direction
-        try {
-            File usersData = new File(path);
-            usersData.createNewFile();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
+        fileManager = new FileManager(path,useFileSystem);
 
-
+        fileManager.firstInit();
 
     }
     @Override
@@ -30,17 +26,8 @@ public class UserManager implements IUserManager{
         if (userExistence(user.getUserName()) == false ){
 
             String usersData = getAllUsers();
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-
-                writer.write(usersData+user.getUserName()+"//"+user.getPassword()+"//"+user.getName());
-                writer.close();
-                return  true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-
-            }
+            setAllUsers(usersData+user.getUserName()+"//"+user.getPassword()+"//"+user.getName());
+            return true;
         }else {
 
             return false;
@@ -208,33 +195,13 @@ public class UserManager implements IUserManager{
     }
     @Override
     public String getAllUsers(){
-        String usersInfo = "";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            String line = "";
-            while ((line = reader.readLine()) != null){
 
-                usersInfo +=line+"\n";
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return usersInfo;
+        return fileManager.getAllData();
     }
     @Override
     public void setAllUsers(String users){
 
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-
-            writer.write(users);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        fileManager.setAllData(users);
 
     }
 

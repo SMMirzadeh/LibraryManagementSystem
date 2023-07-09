@@ -1,5 +1,6 @@
 package Book;
 
+import Tools.FileManager;
 import Transaction.Transaction;
 import User.User;
 
@@ -11,18 +12,13 @@ import java.util.Date;
 public class BookManager implements IBookManager{
 
     private final String path = "BooksData.txt";
+    private FileManager fileManager;
 
-    public BookManager(){
+    public BookManager(boolean useFileSystem){
 
-        //Creating UsersData.txt file into the path direction
-        try {
-            File usersData = new File(path);
-            usersData.createNewFile();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
+        fileManager = new FileManager(path,useFileSystem);
 
+        fileManager.firstInit();
 
 
     }
@@ -32,17 +28,8 @@ public class BookManager implements IBookManager{
         if (bookExistence(book.getISBN()) == false){
 
             String booksData = getAllBooks();
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-
-                writer.write(booksData+book.getISBN()+"//"+book.getTitle()+"//"+book.getAuthor()+"//"+book.getGenre()+"//"+book.getUnit());
-                writer.close();
-                return  true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-
-            }
+            fileManager.setAllData(booksData+book.getISBN()+"//"+book.getTitle()+"//"+book.getAuthor()+"//"+book.getGenre()+"//"+book.getUnit());
+            return true;
         }else {
 
             return false;
@@ -200,32 +187,13 @@ public class BookManager implements IBookManager{
 
     @Override
     public String getAllBooks() {
-        String booksInfo = "";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            String line = "";
-            while ((line = reader.readLine()) != null){
 
-                booksInfo +=line+"\n";
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return booksInfo;
+        return fileManager.getAllData();
     }
 
     @Override
     public void setAllBooks(String books) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-
-            writer.write(books);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        fileManager.setAllData(books);
     }
 
     @Override

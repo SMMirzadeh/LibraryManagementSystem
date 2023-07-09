@@ -1,6 +1,7 @@
 package Transaction;
 
 import Book.Book;
+import Tools.FileManager;
 import User.User;
 
 import java.io.*;
@@ -12,16 +13,13 @@ public class TransactionManager implements ITransactionManager{
 
     private final String path = "TransactionsData.txt";
 
-    public TransactionManager(){
+    FileManager fileManager;
 
-        //Creating UsersData.txt file into the path direction
-        try {
-            File usersData = new File(path);
-            usersData.createNewFile();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
+    public TransactionManager(boolean useFileSystem){
+
+        fileManager = new FileManager(path,useFileSystem);
+
+        fileManager.firstInit();
 
 
     }
@@ -30,17 +28,8 @@ public class TransactionManager implements ITransactionManager{
     public boolean addTransaction(Transaction transaction) {
 
             String transactionsData = getAllTransactions();
-            try {
-                BufferedWriter writer = new BufferedWriter(new FileWriter(path));
-
-                writer.write(transactionsData+transaction.getBooksISBN()+"//"+transaction.getUserName()+"//"+transaction.getBorrowDate()+"//"+transaction.getDueDate()+"//"+transaction.getValidState());
-                writer.close();
-                return  true;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-
-            }
+            fileManager.setAllData(transactionsData+transaction.getBooksISBN()+"//"+transaction.getUserName()+"//"+transaction.getBorrowDate()+"//"+transaction.getDueDate()+"//"+transaction.getValidState());
+            return true;
         }
 
     @Override
@@ -116,20 +105,9 @@ public class TransactionManager implements ITransactionManager{
     @Override
     public String getAllTransactions() {
 
-        String transactionsInfo = "";
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(path));
-            String line = "";
-            while ((line = reader.readLine()) != null){
 
-                transactionsInfo +=line+"\n";
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        return transactionsInfo;
+        return fileManager.getAllData();
 
     }
 
@@ -168,14 +146,9 @@ public class TransactionManager implements ITransactionManager{
 
     @Override
     public void setAllTransactions(String transactions) {
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(path));
 
-            writer.write(transactions);
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        fileManager.setAllData(transactions);
+
     }
 
 }

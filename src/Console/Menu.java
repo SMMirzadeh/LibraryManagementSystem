@@ -5,6 +5,7 @@ import Book.IBookManager;
 import Book.Book;
 import Book.Genre;
 import Tools.DateCalculator;
+import Tools.FileManager;
 import Transaction.ITransactionManager;
 import Transaction.Transaction;
 import Transaction.TransactionManager;
@@ -20,10 +21,22 @@ import java.util.Scanner;
 
 public class Menu {
 
-    private static IUserManager userManager = new UserManager();
-    private static IBookManager bookManager = new BookManager();
-    private static ITransactionManager transactionManager = new TransactionManager();
+
+    private static IUserManager userManager;
+    private static IBookManager bookManager;
+    private static ITransactionManager transactionManager;
     private static User currentUser;
+
+    public static void run(boolean useFileSystem){
+
+        userManager = new UserManager(useFileSystem);
+        bookManager = new BookManager(useFileSystem);
+        transactionManager = new TransactionManager(useFileSystem);
+
+        start();
+
+    }
+
     public static void start(){
 
         Scanner scanner = new Scanner(System.in);
