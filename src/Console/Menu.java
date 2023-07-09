@@ -4,6 +4,7 @@ import Book.BookManager;
 import Book.IBookManager;
 import Book.Book;
 import Book.Genre;
+import Tools.DateCalculator;
 import Transaction.ITransactionManager;
 import Transaction.Transaction;
 import Transaction.TransactionManager;
@@ -11,7 +12,10 @@ import User.IUserManager;
 import User.User;
 import User.UserManager;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
@@ -110,12 +114,16 @@ public class Menu {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("+------------------------------------------------+");
-        System.out.println("| for add book please press key a                |");
-        System.out.println("| for find book by title please press key fbt    |");
-        System.out.println("| for find book by author please press key fba   |");
-        System.out.println("| for find book by genre please press key fbg    |");
-        System.out.println("+------------------------------------------------+\n");
+        System.out.println("+-------------------------------------------------+");
+        System.out.println("| for logout from your account please press key l |");
+        System.out.println("| for edit your information please press key e    |");
+        System.out.println("| for delete your account please press key d      |");
+        System.out.println("| for Track borrowed books please press key t      |");
+        System.out.println("| for add book please press key a                 |");
+        System.out.println("| for find book by title please press key fbt     |");
+        System.out.println("| for find book by author please press key fba    |");
+        System.out.println("| for find book by genre please press key fbg     |");
+        System.out.println("+-------------------------------------------------+\n");
 
         while(true){
 
@@ -134,6 +142,66 @@ public class Menu {
                         afterLogin();
                     }
 
+
+            }
+            else if (command.equals("t")){
+
+                trackBooks();
+            }
+            else if(command.equals("l")){
+
+                currentUser = null;
+                start();
+                break;
+
+            }
+            else if (command.equals("e")){
+
+                User tempUser = setUserInformation();
+
+                if (!tempUser.getUserName().equals("")){
+
+                    currentUser.setUserName(tempUser.getUserName());
+                }
+                if (!tempUser.getPassword().equals("d41d8cd98f00b204e9800998ecf8427e")){
+
+                    currentUser.setPassword(tempUser.getPassword());
+                }
+                if (!tempUser.getName().equals("")){
+
+                    currentUser.setName(tempUser.getName());
+                }
+
+
+                boolean isEdited =  userManager.editUser(currentUser);
+                if (isEdited){
+
+                    System.out.println("Edit your account Succeed.");
+                    afterLogin();
+
+                }else {
+
+                    System.out.println("Edit account failed ,please try again.");
+                    afterLogin();
+
+                }
+
+            }
+            else if(command.equals("d")){
+
+                boolean isDeleted = userManager.deleteUser(currentUser.getUserName());
+
+                if (isDeleted){
+
+                    System.out.println("Delete your account Succeed.");
+                    currentUser = null;
+                    start();
+                    break;
+                }
+                else {
+
+                    System.out.println("Delete account failed ,please try again.");
+                }
 
             }
             else if(command.equals("fbt")){
@@ -267,7 +335,6 @@ public class Menu {
 
         System.out.println("+------------------------------------------+");
         System.out.println("| for borrow book please press key b       |");
-        System.out.println("| for return book please press key r       |");
         System.out.println("| for update book please press key u       |");
         System.out.println("| for back to main page please press key m |");
         System.out.println("+------------------------------------------+\n");
@@ -296,26 +363,6 @@ public class Menu {
 
                 }
                 afterLogin();
-            }
-            else if(command.equals("r")){
-
-
-                Transaction transaction = transactionManager.findTransactionByISBN(book.getISBN(),currentUser.getUserName());
-                boolean isTransactionInvalid = transactionManager.toInvalidTransaction(transaction);
-                if (isTransactionInvalid){
-                    int bookUnit = book.getUnit()+1;
-                    book.setUnit(bookUnit);
-                    bookManager.updateBook(book,book.getISBN());
-                    System.out.println("Book successfully returned .");
-
-                }else {
-                    System.out.println("Return book failed , please try again .");
-                }
-
-
-
-                afterLogin();
-
             }
             else if(command.equals("u")){
 
@@ -405,6 +452,69 @@ public class Menu {
     public static void clearConsole(){
 
         System.out.print("\n\n\n\n \n\n\n\n \n\n\n\n \n\n\n\n");
+
+    }
+    public static void trackBooks(){
+
+        clearConsole();
+
+        System.out.println("| for back to main page please press key m |");
+        System.out.println("| for return book please press key r       |");
+
+        List<Transaction> transactions = transactionManager.getAllTransactions(currentUser,true);
+        if (transactions.size()>0){
+            for (Transaction item : transactions){
+
+                Book book = bookManager.findByISBN(item.getBooksISBN());
+                Date dueDate = new Date(item.getDueDate());
+                System.out.println("ISBN : "+ book.getISBN() +"     title : "+book.getTitle()+"     dueTime : " + DateCalculator.timeFormatter(dueDate));
+
+            }
+        }else {
+            System.out.println("There is no borrowing book");
+        }
+
+        Scanner scanner = new Scanner(System.in);
+
+        while (true){
+            String command = scanner.next();
+            if(command.equals("r")){
+
+                System.out.println("please enter ISBN of the book : ");
+                String ISBN = scanner.next();
+                Book book = bookManager.findByISBN(ISBN);
+
+                if (book == null) {
+
+                    System.out.println("Book not found.");
+                    afterLogin();
+
+                }
+                Transaction transaction = transactionManager.findTransactionByISBN(book.getISBN(),currentUser.getUserName());
+                boolean isTransactionInvalid = transactionManager.toInvalidTransaction(transaction);
+                if (isTransactionInvalid){
+                    int bookUnit = book.getUnit()+1;
+                    book.setUnit(bookUnit);
+                    bookManager.updateBook(book,book.getISBN());
+                    System.out.println("Book successfully returned .");
+
+                }else {
+                    System.out.println("Return book failed , please try again .");
+                }
+
+
+
+                afterLogin();
+            }
+            else if(command.equals("m")){
+                afterLogin();
+            }
+            else {
+
+                System.out.println("Wrong command ,please try again");
+            }
+
+        }
 
     }
 }

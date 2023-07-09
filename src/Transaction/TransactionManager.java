@@ -1,9 +1,12 @@
 package Transaction;
 
 import Book.Book;
+import User.User;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class TransactionManager implements ITransactionManager{
 
@@ -127,6 +130,39 @@ public class TransactionManager implements ITransactionManager{
         }
 
         return transactionsInfo;
+
+    }
+
+    @Override
+    public List<Transaction> getAllTransactions(User user, boolean validState) {
+
+        ArrayList<Transaction> result = new ArrayList<Transaction>();
+        String transactionsData = getAllTransactions();
+
+        if (!transactionsData.equals("")){
+
+            String[] transactions = transactionsData.split("\n");
+            for (int i = 0 ; i<transactions.length ; i++){
+
+                String[] transactionInText = transactions[i].split("//");
+
+                if (user.getUserName().equals(transactionInText[1]) && Boolean.parseBoolean(transactionInText[4]) == validState){
+
+                    Transaction transaction = new Transaction();
+                    transaction.setBooksISBN(transactionInText[0]);
+                    transaction.setUserName(transactionInText[1]);
+                    transaction.setBorrowDate(Long.parseLong(transactionInText[2]));
+                    transaction.setDueDate(Long.parseLong(transactionInText[3]));
+                    transaction.setValidState(Boolean.parseBoolean(transactionInText[4]));
+                    result.add(transaction);
+
+                }
+
+            }
+        }
+
+
+        return result;
 
     }
 
