@@ -206,8 +206,17 @@ public class Menu {
             }
             else if(command.equals("fbt")){
 
+                System.out.println("+---------------------------------- -----+");
+                System.out.println("| for show all books please press key ab |");
+                System.out.println("+----------------------------------------+\n");
+
                 System.out.println("please enter title for starting the search :");
                 String title = scanner.next();
+
+                if (title.equals("ab")){
+                    title = "";
+                }
+
                 ArrayList<Book> books =  bookManager.searchByTitle(title);
 
                 if (books != null){
@@ -457,9 +466,10 @@ public class Menu {
     public static void trackBooks(){
 
         clearConsole();
-
+        System.out.println("+------------------------------------------+");
         System.out.println("| for back to main page please press key m |");
         System.out.println("| for return book please press key r       |");
+        System.out.println("+------------------------------------------+\n");
 
         List<Transaction> transactions = transactionManager.getAllTransactions(currentUser,true);
         if (transactions.size()>0){
